@@ -1,7 +1,6 @@
 node_modules
-config
-build
-npm-debug.log
 .env
+build
+nodemon.json
 .DS_Store
-nodemon.json   
+npm-debug.log
