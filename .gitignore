@@ -1,8 +1,8 @@
 node_modules
 config
 build
-nodemon.json
 npm-debug.log
 .env
 .DS_Store
+nodemon.json
    
