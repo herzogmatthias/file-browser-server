@@ -1,19 +1,16 @@
+const { createFalse } = require("typescript");
+
 module.exports = {
-  'env': {
-    'browser': true,
-    'es2020': true,
+  env: {
+    browser: false,
+    es2020: true,
   },
-  'extends': [
-    'google',
-  ],
-  'parser': '@typescript-eslint/parser',
-  'parserOptions': {
-    'ecmaVersion': 11,
-    'sourceType': 'module',
+  extends: ["google"],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaVersion: 11,
+    sourceType: "module",
   },
-  'plugins': [
-    '@typescript-eslint',
-  ],
-  'rules': {
-  },
+  plugins: ["@typescript-eslint"],
+  rules: {},
 };
