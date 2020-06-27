@@ -24,3 +24,6 @@ export interface IMoveFileReqBody {
 export interface IDirDetailsReqBody {
   path: string;
 }
+export interface IDownloadFileReqBody {
+  path: string;
+}
