@@ -1,6 +1,13 @@
 import { rename } from "fs";
 import { promisify } from "util";
-import { IRenameResBody } from "../../interfaces/ResponseBodies";
+import {
+  IRenameResBody,
+  IMoveFileResBody,
+} from "../../interfaces/ResponseBodies";
+import { move } from "fs-extra";
+
+import { join } from "path";
+import { config } from "../../config";
 const renameAsync = promisify(rename);
 
 export class FileService {
@@ -13,8 +20,30 @@ export class FileService {
     } catch (err) {
       return {
         hasError: true,
-        msg: err.msg,
+        msg: err.message,
       };
+    }
+  }
+
+  async copyFiles(
+    oldPaths: string[],
+    newPath: string
+  ): Promise<IMoveFileResBody> {
+    const copyPromises: Promise<void>[] = [];
+    try {
+      for (const oldPath of oldPaths) {
+        copyPromises.push(
+          move(
+            join(config.rootDir, oldPath),
+            join(config.rootDir, newPath, oldPath.split("/").slice(-1)[0])
+          )
+        );
+      }
+      await Promise.all(copyPromises);
+      return { hasError: false };
+    } catch (err) {
+      console.log(err.message);
+      return { hasError: true, msg: err.message };
     }
   }
 }

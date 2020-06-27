@@ -2,32 +2,117 @@ import { IDirectory } from "../../interfaces/IDirectory";
 import { config } from "../../config";
 import { treeJson } from "../../utils/printTree";
 import path from "path";
-import { ICurrentDirResBody } from "../../interfaces/ResponseBodies";
+import { mkdir, lstat } from "fs";
+import { promisify } from "util";
+const mkdirAsync = promisify(mkdir);
+const lstatAsync = promisify(lstat);
+import {
+  IDirOverviewResBody,
+  INewDirResBody,
+  IDirDetailsResBody,
+} from "../../interfaces/ResponseBodies";
+import { IDirectoryOerview } from "../../interfaces/IDirectoryOverview";
+import { getStats, join, getDirData, getExt } from "../../utils/printTreeUtils";
 
 export class DirectoryService {
-  async getCurrentDirectory(paths: string[]): Promise<ICurrentDirResBody> {
-    let dir: IDirectory = {
+  async getDirectoryOverview(paths: string[]): Promise<IDirOverviewResBody> {
+    let dir: IDirectoryOerview = {
       type: "folder",
-      size: 0,
-      createdAt: new Date(),
-      realPath: "",
-      updatedAt: new Date(),
-      isSymbolicLink: false,
+      relativePath: "",
+
       path: config.rootDir,
       children: [],
       name: "root",
     };
     if (paths.length > 1) {
+      dir.relativePath = "/";
       for (const pathName of paths) {
         const item = await treeJson(path.join(config.rootDir, pathName));
+        item ? (item.relativePath = pathName) : null;
         item ? dir.children?.push(item) : null;
       }
     } else {
-      dir = (await treeJson(path.join(config.rootDir, paths[0]))) as IDirectory;
+      dir = (await treeJson(path.join(config.rootDir, paths[0]), {
+        level: 1,
+        onlyDir: false,
+        showHiddenFiles: false,
+      })) as IDirectory;
+      dir.relativePath = paths[0];
     }
+
     return {
       hasError: false,
       dir: dir,
     };
+  }
+
+  async newDirectory(pathName: string, name: string): Promise<INewDirResBody> {
+    try {
+      await mkdirAsync(path.join(config.rootDir, pathName, name));
+      const stats = await lstatAsync(path.join(pathName, name));
+      let dir: IDirectory = {
+        name,
+        relativePath: pathName,
+        path: path.join(pathName, name),
+        createdAt: stats.ctime,
+        updatedAt: stats.mtime,
+        realPath: "",
+        isSymbolicLink: false,
+        size: stats.size,
+        type: "Directory",
+        children: [],
+      };
+      return {
+        hasError: false,
+        dir,
+      };
+    } catch (err) {
+      return {
+        hasError: true,
+        msg: err.message,
+      };
+    }
+  }
+  async getDirectoryDetails(path: string): Promise<IDirDetailsResBody> {
+    const fullpath = join(config.rootDir, path);
+    try {
+      let dir: IDirectory = {
+        name: path.split("/").slice(-1)[0],
+        relativePath: path,
+        path: fullpath,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        realPath: "",
+        isSymbolicLink: false,
+        size: 0,
+        type: "",
+      };
+      const stats = await getStats(fullpath);
+      dir.isSymbolicLink = stats.isSymbolicLink();
+      dir.updatedAt = stats.mtime;
+      dir.createdAt = stats.ctime;
+      if (stats.isDirectory()) {
+        let dirData = await getDirData(fullpath);
+        if (dirData === null)
+          return { hasError: true, msg: "No data available" };
+        dir.type = "Directory";
+        let size = 0;
+        for (let i = 0; i < dirData.length; i++) {
+          const child = dirData[i];
+          size += (await lstatAsync(join(fullpath, child))).size;
+        }
+        dir.size = size;
+      } else {
+        (dir.type = "File"),
+          (dir.size = stats.size),
+          (dir.extension = getExt(fullpath));
+      }
+      return {
+        hasError: false,
+        details: dir,
+      };
+    } catch (err) {
+      return { hasError: true, msg: err.message };
+    }
   }
 }

@@ -3,17 +3,16 @@ import {
   getName,
   isRegExp,
   getStats,
-  realPath,
   getExt,
   getDirData,
   join,
 } from "./printTreeUtils";
 import { IOptions } from "../interfaces/IOptions";
-import { IDirectory } from "../interfaces/IDirectory";
+import { IDirectoryOerview } from "../interfaces/IDirectoryOverview";
 
 const constants = {
-  DIRECTORY: "directory",
-  FILE: "file",
+  DIRECTORY: "Directory",
+  FILE: "File",
 };
 
 export async function treeJson(
@@ -37,15 +36,12 @@ export async function treeJson(
       return false;
     }
   }
-  const item: IDirectory = {
+  const item: IDirectoryOerview = {
     type: "",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    isSymbolicLink: false,
+    relativePath: "",
     path,
-    realPath: "",
     name,
-    size: 0,
+    children: [],
   };
   if (name.charAt(0) === "." && !showHiddenFiles) {
     return false;
@@ -59,13 +55,6 @@ export async function treeJson(
     return false;
   }
 
-  item.size = stats.size;
-  item.isSymbolicLink = stats.isSymbolicLink();
-  item.createdAt = stats.birthtime;
-  item.updatedAt = stats.mtime;
-  if (item.isSymbolicLink) {
-    item.realPath = await realPath(path);
-  }
   if (stats.isFile()) {
     if (onlyDir) return false;
     const ext = getExt(path);
@@ -85,20 +74,12 @@ export async function treeJson(
     const level = myLevel + 1;
     item.type = constants.DIRECTORY;
     item.children = [];
-    let size = 0;
     for (let i = 0; i < dirData.length; i++) {
       const child = dirData[i];
-      if (level === 1) {
-        size += (await getStats(join(path, child))).size;
-      } else {
-        const data = await treeJson(join(path, child), options, level);
-        if (data) item.children.push(data);
-      }
+
+      const data = await treeJson(join(path, child), options, level);
+      if (data) item.children.push(data);
     }
-    item.size =
-      level > 1
-        ? item.children.reduce((prev, child) => prev + child.size, 0)
-        : size;
   }
   return item;
 }

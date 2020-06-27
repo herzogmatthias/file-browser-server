@@ -1,8 +1,14 @@
 import { Express } from "express";
-import { currentDirectory } from "./directory.controller";
+import {
+  directoryOverview,
+  newDirectory,
+  directoryDetails,
+} from "./directory.controller";
 
 const directoryRoutes = (app: Express) => {
-  app.route("/directory/current").post(currentDirectory);
+  app.route("/directory/new/:name").post(newDirectory);
+  app.route("/directory/overview").post(directoryOverview);
+  app.route("/directory/details").post(directoryDetails);
 };
 
 export default directoryRoutes;

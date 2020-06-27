@@ -5,6 +5,7 @@ import cors from "cors";
 import loginRoutes from "./api/login/login.routes";
 import * as dotenv from "dotenv";
 import directoryRoutes from "./api/directory/directory.routes";
+import fileRoutes from "./api/file/file.routes";
 
 process.env.NODE_ENV !== "production" ? dotenv.config() : null;
 express.Router({ mergeParams: true });
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(helmet());
 loginRoutes(app);
 directoryRoutes(app);
+fileRoutes(app);
 app.listen(port, function () {
   console.log("Server started on port: " + port);
 });

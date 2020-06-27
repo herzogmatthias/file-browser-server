@@ -30,7 +30,7 @@ export class LoginService {
     } catch (error) {
       const err: ILoginResBody = {
         hasError: true,
-        msg: error.msg,
+        msg: error.message,
       };
       return err;
     }
