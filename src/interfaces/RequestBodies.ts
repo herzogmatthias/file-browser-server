@@ -1,3 +1,5 @@
+import { IPreviewOptions } from "./IPreviewOptions";
+
 export interface ILoginReqBody {
   password: string;
   username: string;
@@ -26,4 +28,8 @@ export interface IDirDetailsReqBody {
 }
 export interface IDownloadFileReqBody {
   path: string;
+}
+export interface IGeneratePreviewReqBody {
+  path: string;
+  options: IPreviewOptions;
 }

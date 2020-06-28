@@ -1,5 +1,5 @@
 import { IDirectory } from "../../interfaces/IDirectory";
-import { config } from "../../config";
+import { pathConfig } from "../../config";
 import { treeJson } from "../../utils/printTree";
 import path from "path";
 import { mkdir, lstat } from "fs";
@@ -20,19 +20,19 @@ export class DirectoryService {
       type: "folder",
       relativePath: "",
 
-      path: config.rootDir,
+      path: pathConfig.rootDir,
       children: [],
       name: "root",
     };
     if (paths.length > 1) {
       dir.relativePath = "/";
       for (const pathName of paths) {
-        const item = await treeJson(path.join(config.rootDir, pathName));
+        const item = await treeJson(path.join(pathConfig.rootDir, pathName));
         item ? (item.relativePath = pathName) : null;
         item ? dir.children?.push(item) : null;
       }
     } else {
-      dir = (await treeJson(path.join(config.rootDir, paths[0]), {
+      dir = (await treeJson(path.join(pathConfig.rootDir, paths[0]), {
         level: 1,
         onlyDir: false,
         showHiddenFiles: false,
@@ -48,7 +48,7 @@ export class DirectoryService {
 
   async newDirectory(pathName: string, name: string): Promise<INewDirResBody> {
     try {
-      await mkdirAsync(path.join(config.rootDir, pathName, name));
+      await mkdirAsync(path.join(pathConfig.rootDir, pathName, name));
       const stats = await lstatAsync(path.join(pathName, name));
       let dir: IDirectory = {
         name,
@@ -74,7 +74,7 @@ export class DirectoryService {
     }
   }
   async getDirectoryDetails(path: string): Promise<IDirDetailsResBody> {
-    const fullpath = join(config.rootDir, path);
+    const fullpath = join(pathConfig.rootDir, path);
     try {
       let dir: IDirectory = {
         name: path.split("/").slice(-1)[0],

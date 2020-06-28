@@ -20,3 +20,6 @@ export interface IMoveFileResBody extends IBaseErrorModel {}
 export interface IDirDetailsResBody extends IBaseErrorModel {
   details?: IDirectory;
 }
+export interface IGeneratePreviewResBody extends IBaseErrorModel {
+  outPath?: string;
+}

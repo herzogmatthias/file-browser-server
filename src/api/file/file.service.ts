@@ -3,11 +3,14 @@ import { promisify } from "util";
 import {
   IRenameResBody,
   IMoveFileResBody,
+  IGeneratePreviewResBody,
 } from "../../interfaces/ResponseBodies";
-import { move } from "fs-extra";
+import { move, outputFile } from "fs-extra";
 import archiver from "archiver";
 import { join } from "path";
-import { config } from "../../config";
+import { pathConfig } from "../../config";
+import { IPreviewOptions } from "../../interfaces/IPreviewOptions";
+import { generatePreviewAsync } from "../../utils/generatePreviewAsync";
 const renameAsync = promisify(rename);
 
 export class FileService {
@@ -34,8 +37,8 @@ export class FileService {
       for (const oldPath of oldPaths) {
         copyPromises.push(
           move(
-            join(config.rootDir, oldPath),
-            join(config.rootDir, newPath, oldPath.split("/").slice(-1)[0])
+            join(pathConfig.rootDir, oldPath),
+            join(pathConfig.rootDir, newPath, oldPath.split("/").slice(-1)[0])
           )
         );
       }
@@ -68,5 +71,26 @@ export class FileService {
       });
       archive.finalize();
     });
+  }
+
+  async generatePreview(
+    path: string,
+    options: IPreviewOptions
+  ): Promise<IGeneratePreviewResBody> {
+    try {
+      const inPath = join(pathConfig.rootDir, path);
+      var name = path.split("/")[path.split("/").length - 1];
+      const outPath = join(
+        pathConfig.projectDir,
+        "..",
+        "public",
+        "images",
+        name.split(".")[0] + ".jpg"
+      );
+      const response = await generatePreviewAsync(inPath, outPath, options);
+      return { hasError: false, outPath: response.thumbnail };
+    } catch (err) {
+      return { hasError: true, msg: err.message };
+    }
   }
 }

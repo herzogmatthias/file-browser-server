@@ -4,3 +4,4 @@ build
 nodemon.json
 .DS_Store
 npm-debug.log
+public

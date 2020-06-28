@@ -4,14 +4,16 @@ import {
   IRenameReqBody,
   IMoveFileReqBody,
   IDownloadFileReqBody,
+  IGeneratePreviewReqBody,
 } from "../../interfaces/RequestBodies";
 import {
   IRenameResBody,
   IMoveFileResBody,
+  IGeneratePreviewResBody,
 } from "../../interfaces/ResponseBodies";
 import { getStats, join } from "../../utils/printTreeUtils";
 import { unlink } from "fs-extra";
-import { config } from "../../config";
+import { pathConfig } from "../../config";
 
 const fileService = new FileService();
 
@@ -38,7 +40,7 @@ export const downloadFile = async (
   req: Request<{}, any, IDownloadFileReqBody>,
   res: Response
 ) => {
-  var path = join(config.rootDir, req.body.path);
+  var path = join(pathConfig.rootDir, req.body.path);
   const outPath = path + ".zip";
   const stats = await getStats(path);
   if (stats.isDirectory()) {
@@ -54,4 +56,13 @@ export const downloadFile = async (
       unlink(outPath);
     }
   });
+};
+
+export const generatePreview = async (
+  req: Request<{}, any, IGeneratePreviewReqBody>,
+  res: Response<IGeneratePreviewResBody>
+) => {
+  const { path, options } = req.body;
+  const response = await fileService.generatePreview(path, options);
+  response.hasError ? res.status(500).json(response) : res.json(response);
 };
