@@ -7,7 +7,8 @@ import * as dotenv from "dotenv";
 import directoryRoutes from "./api/directory/directory.routes";
 import fileRoutes from "./api/file/file.routes";
 import { join } from "path";
-import { unoconvListener } from "./utils/unoconvListener";
+import { listener } from "./utils/unoconv/listener";
+import { unoconv } from "./utils/unoconv";
 
 process.env.NODE_ENV !== "production" ? dotenv.config() : null;
 express.Router({ mergeParams: true });
@@ -19,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/private", express.static(join(__dirname, "public")));
 app.use(helmet());
-unoconvListener();
+unoconv.listener();
 loginRoutes(app);
 directoryRoutes(app);
 fileRoutes(app);

@@ -5,11 +5,13 @@ import {
   IMoveFileReqBody,
   IDownloadFileReqBody,
   IGeneratePreviewReqBody,
+  IGeneratePdfReqBody,
 } from "../../interfaces/RequestBodies";
 import {
   IRenameResBody,
   IMoveFileResBody,
   IGeneratePreviewResBody,
+  IGeneratePdfResBody,
 } from "../../interfaces/ResponseBodies";
 import { getStats, join } from "../../utils/printTreeUtils";
 import { unlink } from "fs-extra";
@@ -64,5 +66,15 @@ export const generatePreview = async (
 ) => {
   const { path, options } = req.body;
   const response = await fileService.generatePreview(path, options);
+  response.hasError ? res.status(500).json(response) : res.json(response);
+};
+
+export const generatePdf = async (
+  req: Request<{}, any, IGeneratePdfReqBody>,
+  res: Response<IGeneratePdfResBody>
+) => {
+  const { path } = req.body;
+  const fullpath = join(pathConfig.rootDir, path);
+  const response = await fileService.generatePdf(fullpath);
   response.hasError ? res.status(500).json(response) : res.json(response);
 };

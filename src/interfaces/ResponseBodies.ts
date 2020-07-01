@@ -23,3 +23,9 @@ export interface IDirDetailsResBody extends IBaseErrorModel {
 export interface IGeneratePreviewResBody extends IBaseErrorModel {
   outPath?: string;
 }
+
+export interface IGeneratePdfResBody extends IBaseErrorModel {
+  buffer?: Buffer;
+  fileData?: string;
+  base64?: boolean;
+}

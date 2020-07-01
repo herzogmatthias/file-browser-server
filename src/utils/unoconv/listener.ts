@@ -1,6 +1,6 @@
 import spawn from "cross-spawn";
 
-export const unoconvListener = (port?: number) => {
+export const listener = (port?: number) => {
   var args,
     bin = "unoconv";
 

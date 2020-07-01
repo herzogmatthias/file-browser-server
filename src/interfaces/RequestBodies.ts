@@ -33,3 +33,7 @@ export interface IGeneratePreviewReqBody {
   path: string;
   options: IPreviewOptions;
 }
+
+export interface IGeneratePdfReqBody {
+  path: string;
+}
