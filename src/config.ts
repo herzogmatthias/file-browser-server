@@ -1,4 +1,4 @@
 export const pathConfig = {
-  rootDir: "/media/matthias/SCHOKI",
+  rootDir: process.env.NODE_ENV === "test" ? "" : "/media/matthias/SCHOKI",
   projectDir: __dirname,
 };

@@ -48,7 +48,6 @@ export class FileService {
       await Promise.all(copyPromises);
       return { hasError: false };
     } catch (err) {
-      console.log(err.message);
       return { hasError: true, msg: err.message };
     }
   }
@@ -59,7 +58,6 @@ export class FileService {
     const stream = createWriteStream(out, { flags: "w" });
 
     return new Promise(async (resolve, reject) => {
-      console.log(path);
       archive
         .directory(path, false)
         .on("error", (err) => reject(err))

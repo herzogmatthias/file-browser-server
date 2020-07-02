@@ -1,17 +1,16 @@
-import { createPool, Pool } from "mysql";
-import { config } from "./db.config";
+import { createPool, Pool, PoolConfig } from "mysql";
 import { IUser } from "../interfaces/IUser";
 import { IPath } from "../interfaces/IPath";
 
 export default class Database {
   private static instance: Database;
   private dbPool: Pool;
-  private constructor() {
+  private constructor(config: PoolConfig) {
     this.dbPool = createPool(config);
   }
-  static init(): Database {
+  static init(config: PoolConfig): Database {
     if (!Database.instance) {
-      Database.instance = new Database();
+      Database.instance = new Database(config);
     }
     return Database.instance;
   }
@@ -46,7 +45,7 @@ export default class Database {
           "select d.path, ud.write, ud.read from Users u, Directories d, UserDirectories ud where u.id = ? and u.id = ud.user_id and d.id = ud.directory_id",
           user.id,
           (err, results) => {
-            if (err) throw err;
+            if (err) rej(err);
             let paths: IPath[] = results;
             connection.release();
             res(paths);
