@@ -12,7 +12,6 @@ export class LoginService {
     );
     try {
       const user = await db.getUserByUsername(body.username);
-      console.log(user);
       const isMatch = await comparePassword(body.password, user!.password);
       delete user?.password;
       if (isMatch) {

@@ -8,8 +8,8 @@ export interface ILoginResBody extends IBaseErrorModel {
   token?: string;
 }
 
-export interface IDirOverviewResBody extends IBaseErrorModel {
-  dir: IDirectoryOerview;
+export interface ICurrentPathResBody extends IBaseErrorModel {
+  dir: IDirectory;
 }
 
 export interface IRenameResBody extends IBaseErrorModel {}
@@ -29,3 +29,5 @@ export interface IGeneratePdfResBody extends IBaseErrorModel {
   fileData?: string;
   base64?: boolean;
 }
+
+export interface IDeleteResBody extends IBaseErrorModel {}

@@ -5,7 +5,7 @@ export interface ILoginReqBody {
   username: string;
 }
 
-export interface IDirOverviewReqBody {
+export interface ICurrentPathReqBody {
   paths: string[];
 }
 
@@ -36,4 +36,8 @@ export interface IGeneratePreviewReqBody {
 
 export interface IGeneratePdfReqBody {
   path: string;
+}
+
+export interface IDeleteReqBody {
+  paths: string[];
 }

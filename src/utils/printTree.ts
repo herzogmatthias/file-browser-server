@@ -9,6 +9,7 @@ import {
 } from "./printTreeUtils";
 import { IOptions } from "../interfaces/IOptions";
 import { IDirectoryOerview } from "../interfaces/IDirectoryOverview";
+import { IDirectory } from "../interfaces/IDirectory";
 
 const constants = {
   DIRECTORY: "Directory",
@@ -36,11 +37,13 @@ export async function treeJson(
       return false;
     }
   }
-  const item: IDirectoryOerview = {
+  const item: IDirectory = {
     type: "",
     relativePath: "",
     path,
     name,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     children: [],
   };
   if (name.charAt(0) === "." && !showHiddenFiles) {
@@ -54,10 +57,12 @@ export async function treeJson(
     if (myLevel === 0) throw e;
     return false;
   }
-
+  item.createdAt = stats.ctime;
+  item.updatedAt = stats.mtime;
   if (stats.isFile()) {
     if (onlyDir) return false;
     const ext = getExt(path);
+    item.size = stats.size;
     if (
       ext.length > 0 &&
       extensions &&
@@ -70,6 +75,7 @@ export async function treeJson(
   }
   if (stats.isDirectory()) {
     let dirData = await getDirData(path);
+    item.items = dirData?.length;
     if (dirData === null) return false;
     const level = myLevel + 1;
     item.type = constants.DIRECTORY;

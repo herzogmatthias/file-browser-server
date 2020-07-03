@@ -8,6 +8,5 @@ global.login = async () => {
   const response = await request(app)
     .post("/login")
     .send({ username: "testuser", password: "1234" });
-  console.log(response.body.token);
   return response.body.token;
 };

@@ -6,12 +6,10 @@ import { lstat, readdirSync } from "fs";
 let token: string = "";
 let appRequest: SuperTest<Test>;
 beforeAll(async () => {
-  console.log("file beforeAll");
   appRequest = request(app);
   token = await global.login();
 });
 beforeEach(() => {
-  console.log("file beforeEach");
   mock({
     root: {
       schule: {
@@ -32,23 +30,59 @@ afterAll(() => {
   mock.restore();
 });
 
-describe("POST file/content route", () => {
-  test("when calling with a correct route with unsupported file for unoconv, file data should be returned not base64 encoded", async (done) => {
-    const response = await appRequest
-      .post("/file/content")
-      .set("Authorization", `Bearer: ${token}`)
-      .send({ path: "root/coding/hello.js" });
-    console.log(response);
-    expect(response.body.base64).toBeFalsy();
-    done();
+describe("File Controller", () => {
+  describe("POST /file/content route", () => {
+    describe("valid inputs", () => {
+      test("when calling with a correct route with unsupported file for unoconv, file data should be returned not base64 encoded", async (done) => {
+        const response = await appRequest
+          .post("/file/content")
+          .set("Authorization", `Bearer: ${token}`)
+          .send({ path: "root/coding/hello.js" });
+        expect(response.body.base64).toBeFalsy();
+        done();
+      });
+      //returns error because mock fs and unoconv not working obviously
+      test("when calling with a correct route with support file for unoconv, base64 encoded string should be returned (error because of unoconv)", async (done) => {
+        const response = await appRequest
+          .post("/file/content")
+          .set("Authorization", `Bearer: ${token}`)
+          .send({ path: "root/schule/test.txt" });
+        expect(response.body.hasError).toBeTruthy();
+        done();
+      });
+    });
+    describe("invalid inputs", () => {
+      test("when calling with a wrong path, error should be returned", async (done) => {
+        const response = await appRequest
+          .post("/file/content")
+          .set("Authorization", `Bearer: ${token}`)
+          .send({ path: "root/schule/" });
+        expect(response.status).not.toEqual(200);
+        done();
+      });
+    });
   });
-  //returns error because mock fs and unoconv not working obviously
-  test("when calling with a correct route with support file for unoconv, base64 encoded string should be returned", async (done) => {
-    const response = await appRequest
-      .post("/file/content")
-      .set("Authorization", `Bearer: ${token}`)
-      .send({ path: "root/schule/test.txt" });
-    expect(response.body.hasError).toBeTruthy();
-    done();
+  describe("POST /file/generate-preview route", () => {
+    describe("valid inputs", () => {
+      test("when calling route with valid path, thumbnail will be created (error because of unoconv)", async (done) => {
+        const response = await appRequest
+          .post("/file/generate-preview")
+          .set("Authorization", `Bearer: ${token}`)
+          .send({ path: "root/schule/test.png" });
+        expect(response.body.hasError).toBeTruthy();
+        done();
+      });
+    });
+
+    describe("invalid inputs", () => {
+      test("When calling route with invalid path, error will be returned", async (done) => {
+        const response = await appRequest
+          .post("/file/generate-preview")
+          .set("Authorization", `Bearer: ${token}`)
+          .send({ path: "root/schule/" });
+        expect(response.status).not.toEqual(200);
+        done();
+      });
+    });
   });
 });

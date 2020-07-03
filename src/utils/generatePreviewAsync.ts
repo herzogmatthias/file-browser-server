@@ -20,7 +20,6 @@ export const generatePreviewAsync = (
 ) => {
   return new Promise<{ thumbnail: string; pdf?: string }>(async (res, rej) => {
     let input = input_original;
-    console.log(input);
     if (!existsSync(input))
       rej({
         message:

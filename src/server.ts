@@ -10,6 +10,7 @@ import directoryRoutes from "./api/directory/directory.routes";
 import fileRoutes from "./api/file/file.routes";
 import { join } from "path";
 import { unoconv } from "./utils/unoconv";
+import fileSystemRoutes from "./api/file-system/file-system.routes";
 
 express.Router({ mergeParams: true });
 const app = express();
@@ -23,4 +24,5 @@ unoconv.listener();
 loginRoutes(app);
 directoryRoutes(app);
 fileRoutes(app);
+fileSystemRoutes(app);
 export { app };
