@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import request from "supertest";
 import { app } from "../server";
 
-jest.setTimeout(5000);
+jest.setTimeout(20000);
 
 global.login = async () => {
   const response = await request(app)

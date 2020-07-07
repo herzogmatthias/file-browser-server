@@ -16,7 +16,7 @@ import { join } from "path";
 import { FileSystemService } from "./file-system.service";
 import { pathConfig } from "../../config";
 import { getStats } from "../../utils/printTreeUtils";
-import { unlink } from "fs-extra";
+import { unlink, existsSync } from "fs-extra";
 
 const fileSystemService = new FileSystemService();
 
@@ -54,17 +54,20 @@ export const downloadFile = async (
   res: Response
 ) => {
   var path = join(pathConfig.rootDir, req.body.path);
+  if (!existsSync(path))
+    return res
+      .status(500)
+      .json({ hasError: true, msg: "Path does not exist!" });
   const outPath = path + ".zip";
   const stats = await getStats(path);
   if (stats.isDirectory()) {
     try {
       await fileSystemService.zipDirectory(path);
-      console.log("finished zipping");
     } catch (err) {
       res.status(500).json({ hasError: true, msg: err.message });
     }
   }
-  res.download(outPath, (err) => {
+  res.download(stats.isDirectory() ? outPath : path, (err) => {
     if (stats.isDirectory()) {
       unlink(outPath);
     }

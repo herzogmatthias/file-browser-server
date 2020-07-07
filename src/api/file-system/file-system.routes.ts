@@ -4,14 +4,16 @@ import {
   downloadFile,
   renameFile,
   moveFile,
+  deleteFiles,
 } from "./file-system.controller";
+import { checkToken } from "../../middleware/jwt.middleware";
 
 const fileSystemRoutes = (app: Express) => {
-  app.route("/file-system/move").post(moveFile);
-  app.route("/file-system/rename").post(renameFile);
-  app.route("/file-sytem/download").post(downloadFile);
-  app.route("/file-system/current-path").post(currentPath);
-  app.route("file-system/delete").post();
+  app.route("/file-system/move").post(checkToken, moveFile);
+  app.route("/file-system/rename").post(checkToken, renameFile);
+  app.route("/file-system/download").post(checkToken, downloadFile);
+  app.route("/file-system/current-path").post(checkToken, currentPath);
+  app.route("/file-system/delete").post(checkToken, deleteFiles);
 };
 
 export default fileSystemRoutes;

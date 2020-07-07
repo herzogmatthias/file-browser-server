@@ -3,12 +3,6 @@ import { app } from "../../server";
 import mock from "mock-fs";
 import { existsSync } from "fs-extra";
 
-let token: string = "";
-let appRequest: SuperTest<Test>;
-beforeAll(async () => {
-  appRequest = request(app);
-  token = await global.login();
-});
 beforeEach(() => {
   mock({
     root: {
@@ -31,23 +25,30 @@ afterAll(() => {
 });
 
 describe("Directory Controller", () => {
+  let token: string = "";
+  let appRequest: SuperTest<Test>;
+  beforeAll(async () => {
+    appRequest = request(app);
+    token = await global.login();
+  });
   describe("POST /directory/new/:name route", () => {
     describe("valid inputs", () => {
       test("when calling route with route param and right path, a new directory will be created", async (done) => {
         const response = await appRequest
           .post("/directory/new/newClass")
-          .set("Authorization", `Bearer: ${token}`)
+          .set("Authorization", `Bearer ${token}`)
           .send({ path: "root/schule" });
+
         expect(existsSync(response.body.dir.path)).toBeTruthy();
         expect(response.status).toBe(200);
         done();
       });
     });
-    describe("invalid inputs", async () => {
+    describe("invalid inputs", () => {
       test("when calling route without route param, a error should be returned", async (done) => {
         const response = await appRequest
           .post("/directory/new/")
-          .set("Authorization", `Bearer: ${token}`)
+          .set("Authorization", `Bearer ${token}`)
           .send({ path: "root/schule" });
         expect(response.status).not.toBe(200);
         done();
@@ -55,7 +56,7 @@ describe("Directory Controller", () => {
       test("when calling route without wrong path, a error should be returned", async (done) => {
         const response = await appRequest
           .post("/directory/new/newClass")
-          .set("Authorization", `Bearer: ${token}`)
+          .set("Authorization", `Bearer ${token}`)
           .send({ path: "root/schule/test.txt" });
         expect(response.status).not.toBe(200);
         done();

@@ -3,7 +3,6 @@ import { app } from "../../server";
 
 describe("Login Controller", () => {
   let appRequest: SuperTest<Test>;
-
   beforeEach(() => {
     appRequest = request(app);
   });

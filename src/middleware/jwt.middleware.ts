@@ -7,12 +7,14 @@ export const checkToken = (req: Request, res: Response, next: NextFunction) => {
     (req.headers["x-access-token"] as string) ||
     (req.headers["authorization"] as string); // Express headers are auto converted to lowercase
 
+  console.log(process.env.SECRET);
   if (token) {
     if (token.startsWith("Bearer ")) {
       // Remove Bearer from string
       token = token.slice(7, token.length);
     }
     jwt.verify(token, process.env.SECRET!, (err, decoded) => {
+      console.log(err);
       if (err) {
         res.status(500).json({
           hasError: true,

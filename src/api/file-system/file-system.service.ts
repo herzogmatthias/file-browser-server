@@ -21,26 +21,30 @@ export class FileSystemService {
       children: [],
       name: "root",
     };
-    if (paths.length > 1) {
-      dir.relativePath = "/";
-      for (const pathName of paths) {
-        const item = await treeJson(join(pathConfig.rootDir, pathName));
-        item ? (item.relativePath = pathName) : null;
-        item ? dir.children?.push(item) : null;
+    try {
+      if (paths.length > 1) {
+        dir.relativePath = "/";
+        for (const pathName of paths) {
+          const item = await treeJson(join(pathConfig.rootDir, pathName));
+          item ? (item.relativePath = pathName) : null;
+          item ? dir.children?.push(item) : null;
+        }
+      } else {
+        dir = (await treeJson(join(pathConfig.rootDir, paths[0]), {
+          level: 1,
+          onlyDir: false,
+          showHiddenFiles: false,
+        })) as IDirectory;
+        dir.relativePath = paths[0];
       }
-    } else {
-      dir = (await treeJson(join(pathConfig.rootDir, paths[0]), {
-        level: 1,
-        onlyDir: false,
-        showHiddenFiles: false,
-      })) as IDirectory;
-      dir.relativePath = paths[0];
-    }
 
-    return {
-      hasError: false,
-      dir: dir,
-    };
+      return {
+        hasError: false,
+        dir: dir,
+      };
+    } catch (err) {
+      return { hasError: true, msg: err.message };
+    }
   }
   async renameFile(oldPath: string, newPath: string): Promise<IRenameResBody> {
     try {
@@ -62,12 +66,19 @@ export class FileSystemService {
     const copyPromises: Promise<void>[] = [];
     try {
       for (const oldPath of oldPaths) {
-        copyPromises.push(
-          move(
-            join(pathConfig.rootDir, oldPath),
-            join(pathConfig.rootDir, newPath, oldPath.split("/").slice(-1)[0])
-          )
-        );
+        if (existsSync(join(pathConfig.rootDir, oldPath))) {
+          copyPromises.push(
+            move(
+              join(pathConfig.rootDir, oldPath),
+              join(pathConfig.rootDir, newPath, oldPath.split("/").slice(-1)[0])
+            )
+          );
+        } else {
+          return {
+            hasError: true,
+            msg: `${join(pathConfig.rootDir, oldPath)} does not exist`,
+          };
+        }
       }
       await Promise.all(copyPromises);
       return { hasError: false };
@@ -85,9 +96,6 @@ export class FileSystemService {
         .directory(path, false)
         .on("error", (err) => reject(err))
         .on("warning", (err) => console.log(err))
-        .on("progress", (progress) => console.log(progress.entries.processed))
-        .on("finish", () => console.log("archiver finished"))
-        .on("close", () => console.log("archiver closed"))
         .pipe(stream);
       stream.once("finish", () => {
         console.log("finished");

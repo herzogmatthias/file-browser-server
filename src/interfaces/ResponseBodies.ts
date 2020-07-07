@@ -9,7 +9,7 @@ export interface ILoginResBody extends IBaseErrorModel {
 }
 
 export interface ICurrentPathResBody extends IBaseErrorModel {
-  dir: IDirectory;
+  dir?: IDirectory;
 }
 
 export interface IRenameResBody extends IBaseErrorModel {}
