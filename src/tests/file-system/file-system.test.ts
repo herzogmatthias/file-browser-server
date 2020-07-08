@@ -20,10 +20,14 @@ beforeEach(() => {
       coding: {
         "hello.html": "<h1>Hello world</h1>",
         "hello.js": 'export const hello = () => {console.log("hello world")}',
+        test: {
+          "test.html": "<h1>Test</h1>",
+        },
+        test2: {
+          "hello.txt": "<h1>Test</h1>",
+        },
       },
-      test: {
-        "test.html": "<h1>Test</h1>",
-      },
+
       restricted: {
         "hello_restriced.html": "<h1>Hello world</h1>",
       },
@@ -85,8 +89,9 @@ describe("File-system Controller", () => {
           .post("/file-system/current-path")
           .set("Authorization", `Bearer ${token}`)
           .send({
-            paths: ["root/schule", "root/coding"],
+            paths: ["root/coding/test", "root/coding/test2"],
           });
+        console.log(response.body);
         expect(response.status).toBe(200);
         expect(response.body.dir.type).toBe("folder");
         done();
@@ -98,7 +103,7 @@ describe("File-system Controller", () => {
           .post("/file-system/current-path")
           .set("Authorization", `Bearer ${token}`)
           .send({
-            paths: "root/schule",
+            paths: "root/coding",
           });
         expect(response.status).not.toBe(200);
         done();
@@ -123,10 +128,10 @@ describe("File-system Controller", () => {
           .post("/file-system/delete")
           .set("Authorization", `Bearer ${token}`)
           .send({
-            paths: ["root/schule/test.txt", "root/coding"],
+            paths: ["root/coding/test", "root/coding/hello.js"],
           });
         expect(response.status).toBe(200);
-        expect(existsSync("root/schule/test.txt")).toBeFalsy();
+        expect(existsSync("root/coding/test")).toBeFalsy();
         expect(existsSync("root/coding/hello.js")).toBeFalsy();
         done();
       });
@@ -151,12 +156,12 @@ describe("File-system Controller", () => {
           .post("/file-system/move")
           .set("Authorization", `Bearer ${token}`)
           .send({
-            oldPaths: ["root/test", "root/coding/hello.js"],
-            newPath: "root/schule",
+            oldPaths: ["root/coding/test", "root/coding/hello.js"],
+            newPath: "root/coding/test2",
           });
         expect(response.status).toBe(200);
-        expect(existsSync("root/schule/hello.js")).toBeTruthy();
-        expect(existsSync("root/schule/test")).toBeTruthy();
+        expect(existsSync("root/coding/test2/hello.js")).toBeTruthy();
+        expect(existsSync("root/coding/test2/test")).toBeTruthy();
         done();
       });
     });
@@ -182,7 +187,7 @@ describe("File-system Controller", () => {
           .post("/file-system/download")
           .set("Authorization", `Bearer ${token}`)
           .send({
-            path: "root/schule/test.txt",
+            path: "root/coding/hello.js",
           });
         expect(response.status).toBe(200);
         done();
@@ -192,7 +197,7 @@ describe("File-system Controller", () => {
           .post("/file-system/download")
           .set("Authorization", `Bearer ${token}`)
           .send({
-            path: "root/schule",
+            path: "root/coding/test",
           });
         expect(response.status).toBe(200);
         done();

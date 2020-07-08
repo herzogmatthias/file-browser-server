@@ -37,8 +37,8 @@ describe("Directory Controller", () => {
         const response = await appRequest
           .post("/directory/new/newClass")
           .set("Authorization", `Bearer ${token}`)
-          .send({ path: "root/schule" });
-
+          .send({ path: "root/coding" });
+        console.log(response.body);
         expect(existsSync(response.body.dir.path)).toBeTruthy();
         expect(response.status).toBe(200);
         done();
@@ -49,7 +49,7 @@ describe("Directory Controller", () => {
         const response = await appRequest
           .post("/directory/new/")
           .set("Authorization", `Bearer ${token}`)
-          .send({ path: "root/schule" });
+          .send({ path: "root/coding" });
         expect(response.status).not.toBe(200);
         done();
       });
@@ -57,7 +57,7 @@ describe("Directory Controller", () => {
         const response = await appRequest
           .post("/directory/new/newClass")
           .set("Authorization", `Bearer ${token}`)
-          .send({ path: "root/schule/test.txt" });
+          .send({ path: "root/coding/test.txt" });
         expect(response.status).not.toBe(200);
         done();
       });
